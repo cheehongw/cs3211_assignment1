@@ -1,10 +1,9 @@
 #include <iostream>
 #include <thread>
+#include <queue>
 
 #include "io.hpp"
 #include "engine.hpp"
-
-
 
 void Engine::accept(ClientConnection connection)
 {
@@ -30,11 +29,15 @@ void Engine::connection_thread(ClientConnection connection)
 		{
 			case input_cancel: {
 				SyncCerr {} << "Got cancel: ID: " << input.order_id << std::endl;
+				
+				bool is_successful = false;
+				auto to_delete = orders.find(input.order_id);
+				if (to_delete != orders.end()) {
+					is_successful = to_delete->second.cancel_order();
+				}
 
-				// Remember to take timestamp at the appropriate time, or compute
-				// an appropriate timestamp!
 				auto output_time = getCurrentTimestamp();
-				Output::OrderDeleted(input.order_id, true, output_time);
+				Output::OrderDeleted(input.order_id, is_successful, output_time);
 				break;
 			}
 
@@ -43,22 +46,24 @@ void Engine::connection_thread(ClientConnection connection)
 				    << "Got order: " << static_cast<char>(input.type) << " " << input.instrument << " x " << input.count << " @ "
 				    << input.price << " ID: " << input.order_id << std::endl;
 
-				// Remember to take timestamp at the appropriate time, or compute
-				// an appropriate timestamp!
-				auto output_time = getCurrentTimestamp();
-				Output::OrderAdded(input.order_id, input.instrument, input.price, input.count, input.type == input_sell,
-				    output_time);
+				//TODO:
+				// initialize Order obj (not done)
+				// fetch corresponding instrument engine (initialize if doesnt exist) (done)
+				// match order in instrument engine (not done)
+				// add order into engine list if added as resting order (not done)
+				Order order = new Order();
+
+				auto iter = instrument_engines.find(input.instrument);
+				InstrumentEngine* instrument_engine;
+				if (iter == instrument_engines.end()) {
+					instrument_engine = new InstrumentEngine();
+					instrument_engines.emplace(instrument_engine); //???? 
+				} else {
+					iter->second.match_order(order);
+				}
+
 				break;
 			}
 		}
-
-		// Additionally:
-
-		// Remember to take timestamp at the appropriate time, or compute
-		// an appropriate timestamp!
-		intmax_t output_time = getCurrentTimestamp();
-
-		// Check the parameter names in `io.hpp`.
-		Output::OrderExecuted(123, 124, 1, 2000, 10, output_time);
 	}
 }
