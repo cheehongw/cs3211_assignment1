@@ -29,7 +29,7 @@ is_fulfilled InstrumentEngine::match_resting_buy(std::shared_ptr<Order> sell)
             continue;
         }
 
-        if (best_resting_order->price > sell->price) {
+        if (best_resting_order->price >= sell->price) {
             update_result match_result = best_resting_order->update_order(sell->count);
             sell->count -= match_result.units_traded; 
 
@@ -57,10 +57,11 @@ is_fulfilled InstrumentEngine::match_resting_buy(std::shared_ptr<Order> sell)
 
 is_fulfilled InstrumentEngine::match_resting_sell(std::shared_ptr<Order> buy) 
 {   
-
+    
     while (buy->count > 0) {
+
         if (resting_sells.empty() ) {
-            add_to_resting_sell(buy);
+            add_to_resting_buy(buy);
             return false;
         }
 
@@ -73,7 +74,7 @@ is_fulfilled InstrumentEngine::match_resting_sell(std::shared_ptr<Order> buy)
             continue;
         }
 
-        if (best_resting_order->price < buy->price) {
+        if (best_resting_order->price <= buy->price) {
             update_result match_result = best_resting_order->update_order(buy->count);
             buy->count -= match_result.units_traded; 
 
