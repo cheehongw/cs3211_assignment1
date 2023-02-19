@@ -12,9 +12,17 @@ is_fulfilled InstrumentEngine::match_resting_buy(std::shared_ptr<Order> sell)
 {   
 
     while (sell->count > 0) {
+
+
+        if (resting_buys.empty() ) {
+            add_to_resting_sell(sell);
+            return false;
+        }
+
         const std::shared_ptr<Order>& best_resting_order = resting_buys.top();
 
-        if (existing_orders.contains(best_resting_order->order_id)) {
+        intmax_t output_time = getCurrentTimestamp();
+        if (!existing_orders.contains(best_resting_order->order_id)) {
             resting_buys.pop();
             continue;
         }
@@ -28,7 +36,6 @@ is_fulfilled InstrumentEngine::match_resting_buy(std::shared_ptr<Order> sell)
                 existing_orders.erase(best_resting_order->order_id);
             }
 
-            intmax_t output_time = getCurrentTimestamp();
             Output::OrderExecuted(
                 best_resting_order->order_id, 
                 sell->order_id, 
@@ -50,9 +57,16 @@ is_fulfilled InstrumentEngine::match_resting_sell(std::shared_ptr<Order> buy)
 {   
 
     while (buy->count > 0) {
+        if (resting_sells.empty() ) {
+            add_to_resting_sell(buy);
+            return false;
+        }
+
         const std::shared_ptr<Order>& best_resting_order = resting_sells.top();
 
-        if (existing_orders.contains(best_resting_order->order_id)) {
+        intmax_t output_time = getCurrentTimestamp();
+        
+        if (!existing_orders.contains(best_resting_order->order_id)) {
             resting_sells.pop();
             continue;
         }
@@ -64,8 +78,6 @@ is_fulfilled InstrumentEngine::match_resting_sell(std::shared_ptr<Order> buy)
             if (match_result.is_resting_order_fully_filled) {
                 resting_sells.pop();
             }
-
-            intmax_t output_time = getCurrentTimestamp();
 
             Output::OrderExecuted(
                 best_resting_order->order_id, 

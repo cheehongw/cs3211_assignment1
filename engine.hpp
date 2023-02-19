@@ -23,6 +23,7 @@ public:
 private:
 	std::unordered_map<std::string, InstrumentEngine> instrument_engines; 
 	std::unordered_set<uint32_t> existing_orders;
+	std::mutex mut;
 
 	void connection_thread(ClientConnection conn);
 };

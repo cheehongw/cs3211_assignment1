@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_set>
 #include <memory>
+#include <mutex>
 
 #include "Order.hpp"
 #include "io.hpp"

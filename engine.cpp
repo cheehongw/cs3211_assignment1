@@ -13,6 +13,7 @@ void Engine::accept(ClientConnection connection)
 
 void Engine::connection_thread(ClientConnection connection)
 {
+	std::lock_guard<std::mutex> lock{mut};
 	while(true)
 	{
 		ClientCommand input {};
@@ -58,7 +59,7 @@ void Engine::connection_thread(ClientConnection connection)
 				
 				auto result = instrument_engines.emplace(
 					std::piecewise_construct,
-						std::forward_as_tuple(std::string(input.instrument)), 
+						std::forward_as_tuple(input.instrument), 
 						std::forward_as_tuple(existing_orders));
 
 				InstrumentEngine& instr_eng = result.first->second;
