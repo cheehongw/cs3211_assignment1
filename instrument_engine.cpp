@@ -21,7 +21,7 @@ is_fulfilled InstrumentEngine::match_resting_buy(std::shared_ptr<Order> sell)
             return false;
         }
 
-        const std::shared_ptr<Order>& best_resting_order = resting_buys.top();
+        std::shared_ptr<Order> best_resting_order = resting_buys.top();
 
         intmax_t output_time = getCurrentTimestamp();
         
@@ -66,7 +66,7 @@ is_fulfilled InstrumentEngine::match_resting_sell(std::shared_ptr<Order> buy)
             return false;
         }
 
-        const std::shared_ptr<Order>& best_resting_order = resting_sells.top();
+        std::shared_ptr<Order> best_resting_order = resting_sells.top();
 
         intmax_t output_time = getCurrentTimestamp();
         
