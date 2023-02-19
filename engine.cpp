@@ -31,9 +31,10 @@ void Engine::connection_thread(ClientConnection connection)
 				SyncCerr {} << "Got cancel: ID: " << input.order_id << std::endl;
 				
 				bool is_successful = false;
-				auto to_delete = orders.find(input.order_id);
-				if (to_delete != orders.end()) {
-					is_successful = to_delete->second.cancel_order();
+				auto to_delete = existing_orders.find(input.order_id);
+				if (to_delete != existing_orders.end()) {
+					existing_orders.erase(to_delete);
+					is_successful = true;
 				}
 
 				auto output_time = getCurrentTimestamp();
@@ -46,22 +47,28 @@ void Engine::connection_thread(ClientConnection connection)
 				    << "Got order: " << static_cast<char>(input.type) << " " << input.instrument << " x " << input.count << " @ "
 				    << input.price << " ID: " << input.order_id << std::endl;
 
-				//TODO:
-				// initialize Order obj (not done)
-				// fetch corresponding instrument engine (initialize if doesnt exist) (done)
-				// match order in instrument engine (not done)
-				// add order into engine list if added as resting order (not done)
-				Order order = new Order();
+			
+				// initialize Order obj 
+				// fetch corresponding instrument engine (initialize if doesnt exist) 
+				// match order in instrument engine 
+				// add order into engine list if added as resting order 
 
-				auto iter = instrument_engines.find(input.instrument);
-				InstrumentEngine* instrument_engine;
-				if (iter == instrument_engines.end()) {
-					instrument_engine = new InstrumentEngine();
-					instrument_engines.emplace(instrument_engine); //???? 
-				} else {
-					iter->second.match_order(order);
+				auto order = std::make_shared<Order>(input.type == input_sell, input.order_id, 
+					input.price, input.count, input.instrument, 0);
+				
+				auto result = instrument_engines.emplace(
+					std::piecewise_construct,
+						std::forward_as_tuple(std::string(input.instrument)), 
+						std::forward_as_tuple(existing_orders));
+
+				InstrumentEngine& instr_eng = result.first->second;
+
+				bool is_fulfilled = instr_eng.match_order(order);
+				
+				if (!is_fulfilled) {
+					existing_orders.insert(order->order_id);
 				}
-
+				
 				break;
 			}
 		}

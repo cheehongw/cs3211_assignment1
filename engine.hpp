@@ -4,13 +4,16 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-#include <chrono>
-#include <map>
+#include <unordered_set>
+#include <unordered_map>
 #include <queue>
 #include <string>
 
+
 #include "io.hpp"
 #include "instrument_engine.hpp"
+#include "Order.hpp"
+#include "getTimeStamp.hpp"
 
 struct Engine
 {
@@ -18,15 +21,10 @@ public:
 	void accept(ClientConnection conn);
 
 private:
-	std::unordered_map<std::string, InstrumentEngine&> Engine::instrument_engines;
-	std::unordered_map<int, Order&> orders;
+	std::unordered_map<std::string, InstrumentEngine> instrument_engines; 
+	std::unordered_set<uint32_t> existing_orders;
 
 	void connection_thread(ClientConnection conn);
 };
-
-inline std::chrono::microseconds::rep getCurrentTimestamp() noexcept
-{
-	return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-}
 
 #endif
