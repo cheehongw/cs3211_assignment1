@@ -5,11 +5,11 @@ bool operator<(const Order &lhs, const Order &rhs)
     if (lhs.is_sell_order) {
         return !(lhs.price == rhs.price 
             ? lhs.time_order_added < rhs.time_order_added 
-            : lhs.price > rhs.price);
+            : lhs.price < rhs.price);
     } else {
         return !(lhs.price == rhs.price 
             ? lhs.time_order_added < rhs.time_order_added 
-            : lhs.price < rhs.price);
+            : lhs.price > rhs.price);
     }
 }
 

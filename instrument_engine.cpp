@@ -24,6 +24,7 @@ is_fulfilled InstrumentEngine::match_resting_buy(std::shared_ptr<Order> sell)
         const std::shared_ptr<Order>& best_resting_order = resting_buys.top();
 
         intmax_t output_time = getCurrentTimestamp();
+        
         if (!existing_orders.contains(best_resting_order->order_id)) {
             resting_buys.pop();
             continue;
@@ -80,6 +81,8 @@ is_fulfilled InstrumentEngine::match_resting_sell(std::shared_ptr<Order> buy)
 
             if (match_result.is_resting_order_fully_filled) {
                 resting_sells.pop();
+                existing_orders.erase(best_resting_order->order_id);
+
             }
 
             Output::OrderExecuted(
