@@ -104,8 +104,9 @@ is_fulfilled InstrumentEngine::match_resting_sell(std::shared_ptr<Order> buy)
 
 void InstrumentEngine::add_to_resting_buy(std::shared_ptr<Order> buy) 
 {
-    resting_buys.push(buy);
     intmax_t output_time = getCurrentTimestamp();
+    buy->time_order_added = output_time;
+    resting_buys.push(buy);
     Output::OrderAdded(buy->order_id, 
         buy->instrument.c_str(), buy->price, buy->count, buy->is_sell_order, output_time);
 }
@@ -113,8 +114,9 @@ void InstrumentEngine::add_to_resting_buy(std::shared_ptr<Order> buy)
 
 void InstrumentEngine::add_to_resting_sell(std::shared_ptr<Order> sell) 
 {
-    resting_sells.push(sell);
     intmax_t output_time = getCurrentTimestamp();
+    sell->time_order_added = output_time;
+    resting_sells.push(sell);
     Output::OrderAdded(sell->order_id, 
         sell->instrument.c_str(), sell->price, sell->count, sell->is_sell_order, output_time);
 }

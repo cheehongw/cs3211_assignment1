@@ -1,6 +1,8 @@
 #include <iostream>
 #include <thread>
 #include <queue>
+#include <mutex>
+
 
 #include "io.hpp"
 #include "engine.hpp"
